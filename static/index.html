@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Duoliang Station Live Stream Viewer</title>
+    <!-- Premium Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Material Design Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css?v=28">
+</head>
+<body>
+    <div class="app-container">
+        <!-- HEADER -->
+        <header class="app-header">
+            <div class="header-left">
+                <span class="material-symbols-outlined logo-icon">live_tv</span>
+                <h1><span data-i18n="header_title">Duoliang Station</span> <span class="accent-text" data-i18n="header_subtitle">Live Viewer</span></h1>
+            </div>
+            <div class="header-right">
+                <div class="header-stats">
+                    <div class="header-stat stream-only-stat">
+                        <span class="stat-label" data-i18n="label_stream">Stream:</span>
+                        <span id="stream-status-badge" class="badge badge-disconnected">Checking...</span>
+                    </div>
+                    <div class="header-stat stream-only-stat">
+                        <span class="stat-label" data-i18n="label_fps">FPS:</span>
+                        <span id="stream-fps" class="stat-value">0.0</span>
+                    </div>
+                    <div class="header-stat stream-only-stat">
+                        <span class="stat-label" data-i18n="label_resolution">Resolution:</span>
+                        <span id="stream-res" class="stat-value">1280x720</span>
+                    </div>
+                    <div class="header-stat">
+                        <span class="stat-label" data-i18n="label_viewers">Viewers:</span>
+                        <span id="visitor-count" class="stat-value">0</span>
+                    </div>
+                </div>
+                <button id="btn-stop-server" class="btn btn-danger btn-small" data-i18n-title="btn_stop_server_title">
+                    <span class="material-symbols-outlined" style="font-size: 16px;">power_settings_new</span>
+                    <span data-i18n="btn_stop_server">Stop Server</span>
+                </button>                
+                <div class="header-action-group">
+                    <button id="btn-toggle-config" class="btn" data-i18n-title="btn_toggle_config">
+                        <span class="material-symbols-outlined" style="font-size: 18px;">settings</span>
+                    </button>
+                    <button id="btn-toggle-video" class="btn" data-i18n-title="btn_toggle_video">
+                        <span class="material-symbols-outlined" style="font-size: 18px;">visibility</span>
+                    </button>
+                    <button id="btn-toggle-lang" class="btn" title="Switch Language / 切換語言">
+                        <span class="material-symbols-outlined" style="font-size: 18px;">language</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- MAIN LAYOUT -->
+        <div class="main-content">
+            
+            <!-- VIDEO CONTAINER -->
+            <section class="video-section">
+                <div class="video-wrapper">
+                    <!-- YouTube Live Stream Player Embed -->
+                    <div id="mjpeg-stream" class="video-feed" style="position: relative; overflow: hidden; background: #000; width: 100%; height: 100%; display: block;">
+                        <iframe id="youtube-player" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+                    </div>
+                    
+                    <!-- Overlay Hud Indicators -->
+                    <div class="stream-hud-overlay">
+                        <div class="hud-top-left">
+                            <span id="detector-status-dot" class="hud-status-dot" style="background: var(--accent-cyan); box-shadow: 0 0 8px var(--accent-cyan);"></span>
+                            <span id="detector-status-text" class="hud-status-text" data-i18n="detector_status_viewing">STREAMING</span>
+                        </div>
+                        <div class="hud-top-right">
+                            <span class="hud-live-tag">LIVE</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CONTROL BAR -->
+                <div class="video-controls">
+                    <button id="btn-toggle-mute" class="btn btn-secondary" title="Mute/Unmute Video Audio">
+                        <span class="material-symbols-outlined">volume_off</span>
+                        <span id="btn-mute-text" data-i18n="btn_unmute">Unmute</span>
+                    </button>
+                    <button id="btn-refresh-feed" class="btn btn-icon" data-i18n-title="btn_refresh_feed_title">
+                        <span class="material-symbols-outlined">refresh</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- BOTTOM PANEL (TABS: CONFIG, LOGS) -->
+            <section class="panel-section">
+                <div class="panel-tabs">
+                    <button class="tab-btn active" data-tab="tab-config">
+                        <span class="material-symbols-outlined">settings_suggest</span>
+                        <span data-i18n="tab_config">Settings</span>
+                    </button>
+                    <button class="tab-btn" data-tab="tab-logs">
+                        <span class="material-symbols-outlined">terminal</span>
+                        <span data-i18n="tab_logs">Activity Logs</span>
+                    </button>
+                </div>
+                
+                <div class="panel-body">
+                    <!-- TAB: CONFIGURATION -->
+                    <div id="tab-config" class="tab-content active">
+                        <form id="config-form" class="config-grid">
+                            <div class="config-group" style="grid-column: 1 / -1;">
+                                <h3 data-i18n="group_stream_settings">Live Stream Settings</h3>
+                                <div class="form-row">
+                                    <label for="config-youtube-url" data-i18n="label_youtube_url">YouTube Live Stream URL</label>
+                                    <input type="text" id="config-youtube-url" name="youtube_url" placeholder="e.g. https://www.youtube.com/watch?v=..." style="font-family: sans-serif; width: 100%; box-sizing: border-box;">
+                                    <span class="field-desc" data-i18n="desc_youtube_url">The live stream URL of Duoliang Station. Updating this will restart the server connection.</span>
+                                </div>
+                            </div>
+
+                            <div class="config-actions">
+                                <button type="submit" class="btn btn-primary">
+                                    <span class="material-symbols-outlined">save</span>
+                                    <span data-i18n="btn_apply_config">Apply Config Updates</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- TAB: LOGS -->
+                    <div id="tab-logs" class="tab-content">
+                        <div class="logs-console-wrapper">
+                            <div class="console-actions">
+                                <button id="btn-clear-logs" class="btn btn-secondary btn-small" data-i18n="btn_clear_view">Clear View</button>
+                                <button id="btn-refresh-logs" class="btn btn-secondary btn-small" data-i18n="btn_force_refresh">Force Refresh</button>
+                            </div>
+                            <div id="logs-console" class="logs-console">
+                                <div class="log-line text-muted" data-i18n="console_reading">Reading activity logs...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <!-- Frontend Script -->
+    <script src="app.js?v=44"></script>
+</body>
+</html>
