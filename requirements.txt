@@ -1,0 +1,7 @@
+fastapi>=0.100.0
+uvicorn>=0.22.0
+httpx>=0.24.0
+pydantic>=2.0
+opencv-python>=4.8
+yt-dlp>=2024.08.0
+git+https://github.com/abaopa/streamviewers-shared.git@v0.1.0
